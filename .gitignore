@@ -1,0 +1,17 @@
+# Backend
+/backend/vendor/
+/backend/*.exe
+/backend/*.dll
+/backend/*.so
+/backend/*.dylib
+/backend/.env
+
+# Frontend
+/frontend/node_modules/
+/frontend/build/
+/frontend/.env.local
+
+# General
+.env
+.DS_Store
+*.log
