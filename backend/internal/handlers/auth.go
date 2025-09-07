@@ -1,6 +1,8 @@
 package handlers
 
 import (
+	"log"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/yourusername/fundament/internal/models"
 	"github.com/yourusername/fundament/internal/utils"
@@ -120,28 +122,40 @@ func (h *AuthHandler) Login(c *fiber.Ctx) error {
 		})
 	}
 
+	// Debug logging
+	log.Printf("🔐 Login attempt for email: %s", req.Email)
+
 	// Find user
 	var user models.User
 	if err := h.DB.Where("email = ?", req.Email).First(&user).Error; err != nil {
+		log.Printf("❌ User not found: %s", req.Email)
 		return c.Status(401).JSON(fiber.Map{
 			"error": "Invalid email or password",
 		})
 	}
 
+	log.Printf("✅ User found: %s (ID: %d)", user.Email, user.ID)
+
 	// Check password
 	if !utils.CheckPasswordHash(req.Password, user.Password) {
+		log.Printf("❌ Password mismatch for user: %s", req.Email)
 		return c.Status(401).JSON(fiber.Map{
 			"error": "Invalid email or password",
 		})
 	}
+
+	log.Printf("✅ Password verified for user: %s", req.Email)
 
 	// Generate JWT token
 	token, err := utils.GenerateJWT(&user)
 	if err != nil {
+		log.Printf("❌ JWT generation failed for user: %s, error: %v", req.Email, err)
 		return c.Status(500).JSON(fiber.Map{
 			"error": "Failed to generate token",
 		})
 	}
+
+	log.Printf("✅ Login successful for user: %s", req.Email)
 
 	return c.JSON(fiber.Map{
 		"token": token,
@@ -149,5 +163,33 @@ func (h *AuthHandler) Login(c *fiber.Ctx) error {
 			"id":    user.ID,
 			"email": user.Email,
 		},
+	})
+}
+
+func (h *AuthHandler) Health(c *fiber.Ctx) error {
+	// Check if database is available
+	if h.DB == nil {
+		return c.Status(503).JSON(fiber.Map{
+			"status": "unhealthy",
+			"database": "not connected",
+			"message": "Database not available. Please ensure PostgreSQL is running.",
+		})
+	}
+
+	// Try a simple database query to ensure it's working
+	var result int64
+	if err := h.DB.Model(&models.User{}).Count(&result).Error; err != nil {
+		return c.Status(503).JSON(fiber.Map{
+			"status": "unhealthy",
+			"database": "error",
+			"message": "Database query failed",
+			"error": err.Error(),
+		})
+	}
+
+	return c.JSON(fiber.Map{
+		"status": "healthy",
+		"database": "connected",
+		"message": "Service is running normally",
 	})
 }

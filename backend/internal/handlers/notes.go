@@ -32,7 +32,19 @@ func (h *NotesHandler) GetNotes(c *fiber.Ctx) error {
 		})
 	}
 
-	userID := c.Locals("userID").(uint)
+	userIDVal := c.Locals("userID")
+	if userIDVal == nil {
+		return c.Status(401).JSON(fiber.Map{
+			"error": "Unauthorized - user not authenticated",
+		})
+	}
+
+	userID, ok := userIDVal.(uint)
+	if !ok {
+		return c.Status(401).JSON(fiber.Map{
+			"error": "Unauthorized - invalid user ID",
+		})
+	}
 
 	var notes []models.Note
 	if err := h.DB.Where("user_id = ?", userID).Order("created_at DESC").Find(&notes).Error; err != nil {
@@ -54,7 +66,19 @@ func (h *NotesHandler) CreateNote(c *fiber.Ctx) error {
 		})
 	}
 
-	userID := c.Locals("userID").(uint)
+	userIDVal := c.Locals("userID")
+	if userIDVal == nil {
+		return c.Status(401).JSON(fiber.Map{
+			"error": "Unauthorized - user not authenticated",
+		})
+	}
+
+	userID, ok := userIDVal.(uint)
+	if !ok {
+		return c.Status(401).JSON(fiber.Map{
+			"error": "Unauthorized - invalid user ID",
+		})
+	}
 
 	var req CreateNoteRequest
 	if err := c.BodyParser(&req); err != nil {
@@ -93,7 +117,19 @@ func (h *NotesHandler) GetNote(c *fiber.Ctx) error {
 		})
 	}
 
-	userID := c.Locals("userID").(uint)
+	userIDVal := c.Locals("userID")
+	if userIDVal == nil {
+		return c.Status(401).JSON(fiber.Map{
+			"error": "Unauthorized - user not authenticated",
+		})
+	}
+
+	userID, ok := userIDVal.(uint)
+	if !ok {
+		return c.Status(401).JSON(fiber.Map{
+			"error": "Unauthorized - invalid user ID",
+		})
+	}
 	noteIDStr := c.Params("id")
 
 	noteID, err := strconv.ParseUint(noteIDStr, 10, 32)
@@ -123,7 +159,19 @@ func (h *NotesHandler) UpdateNote(c *fiber.Ctx) error {
 		})
 	}
 
-	userID := c.Locals("userID").(uint)
+	userIDVal := c.Locals("userID")
+	if userIDVal == nil {
+		return c.Status(401).JSON(fiber.Map{
+			"error": "Unauthorized - user not authenticated",
+		})
+	}
+
+	userID, ok := userIDVal.(uint)
+	if !ok {
+		return c.Status(401).JSON(fiber.Map{
+			"error": "Unauthorized - invalid user ID",
+		})
+	}
 	noteIDStr := c.Params("id")
 
 	noteID, err := strconv.ParseUint(noteIDStr, 10, 32)
@@ -173,7 +221,19 @@ func (h *NotesHandler) DeleteNote(c *fiber.Ctx) error {
 		})
 	}
 
-	userID := c.Locals("userID").(uint)
+	userIDVal := c.Locals("userID")
+	if userIDVal == nil {
+		return c.Status(401).JSON(fiber.Map{
+			"error": "Unauthorized - user not authenticated",
+		})
+	}
+
+	userID, ok := userIDVal.(uint)
+	if !ok {
+		return c.Status(401).JSON(fiber.Map{
+			"error": "Unauthorized - invalid user ID",
+		})
+	}
 	noteIDStr := c.Params("id")
 
 	noteID, err := strconv.ParseUint(noteIDStr, 10, 32)

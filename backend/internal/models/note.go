@@ -16,3 +16,4 @@ type Note struct {
 	User      User           `json:"user,omitempty" gorm:"foreignKey:UserID"`
 }
 
+

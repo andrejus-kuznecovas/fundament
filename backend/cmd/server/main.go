@@ -40,11 +40,7 @@ func main() {
 	}))
 
 	// Health check endpoint
-	app.Get("/health", func(c *fiber.Ctx) error {
-		return c.JSON(fiber.Map{
-			"status": "ok",
-		})
-	})
+	app.Get("/health", authHandler.Health)
 
 	// API routes
 	api := app.Group("/api")

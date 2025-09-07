@@ -16,3 +16,4 @@ type User struct {
 	Notes     []Note         `json:"notes,omitempty" gorm:"foreignKey:UserID"`
 }
 
+
